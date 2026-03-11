@@ -62,6 +62,8 @@
   .book-section { margin-bottom: 16px; }
   .book-section-title { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8a8a9a; margin-bottom: 5px; }
   .book-section-text { font-family: 'Lora', Georgia, serif; font-size: 13.5px; line-height: 1.7; color: #3a3a4e; }
+  .node-link { color: inherit; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(0,0,0,0.15); text-underline-offset: 2px; cursor: pointer; transition: text-decoration-color 0.2s; }
+  .node-link:hover { text-decoration-color: rgba(0,0,0,0.5); }
   .book-stat { display: flex; gap: 16px; margin-bottom: 16px; }
   .book-stat-item { flex: 1; }
   .book-stat-value { font-size: 18px; font-weight: 700; color: #1a1a2e; }
@@ -254,8 +256,8 @@ d3.tree().size([2 * Math.PI, Math.min(W, H) * 0.55])
   .separation(function(a, b) {
     var sib = a.parent === b.parent;
     if (a.depth === 1) return sib ? 1.6 : 3.0;
-    if (a.depth === 2) return sib ? 2.5 : 4.0;
-    return sib ? 3.0 : 5.0;
+    if (a.depth === 2) return sib ? 3.5 : 5.0;
+    return sib ? 2.8 : 4.5;
   })(root);
 root.each(function(d) { d.cx = d.y * Math.cos(d.x - Math.PI / 2); d.cy = d.y * Math.sin(d.x - Math.PI / 2); });
 
@@ -274,9 +276,26 @@ var nodeG = gN.selectAll('g').data(root.descendants()).join('g')
 // Root node
 nodeG.filter(function(d) { return d.depth === 0; }).each(function(d) {
   var el = d3.select(this);
-  el.append('circle').attr('class', 'node-bg').attr('r', 22).attr('fill', '#fff').attr('stroke', '#e0e0e0').attr('stroke-width', 1.5);
-  el.append('circle').attr('r', 8).attr('fill', '#3a3a5e');
-  el.append('text').attr('text-anchor', 'middle').attr('dy', -32).attr('fill', '#1a1a2e').attr('font-size', '16px').attr('font-weight', '800').text('AI');
+  // HAL 9000 — outer ring
+  el.append('circle').attr('r', 28).attr('fill', '#1a1a1a');
+  el.append('circle').attr('r', 24).attr('fill', '#2a2a2a');
+  // Silver bezel
+  var bezel = el.append('circle').attr('r', 20).attr('fill', 'none').attr('stroke', '#888').attr('stroke-width', 2);
+  // Red eye with radial gradient
+  var defs = el.append('defs');
+  var rg = defs.append('radialGradient').attr('id', 'hal-eye');
+  rg.append('stop').attr('offset', '0%').attr('stop-color', '#ff0000');
+  rg.append('stop').attr('offset', '45%').attr('stop-color', '#cc0000');
+  rg.append('stop').attr('offset', '70%').attr('stop-color', '#880000');
+  rg.append('stop').attr('offset', '100%').attr('stop-color', '#330000');
+  el.append('circle').attr('r', 16).attr('fill', 'url(#hal-eye)');
+  // Glint
+  el.append('circle').attr('r', 4).attr('cx', -4).attr('cy', -4).attr('fill', 'rgba(255,255,255,0.35)');
+  el.append('circle').attr('r', 1.5).attr('cx', -6).attr('cy', -6).attr('fill', 'rgba(255,255,255,0.6)');
+  // Subtle glow
+  el.append('circle').attr('r', 30).attr('fill', 'none').attr('stroke', '#ff0000').attr('stroke-width', 0.5).attr('opacity', 0.3);
+  // Label
+  el.append('text').attr('text-anchor', 'middle').attr('dy', -38).attr('fill', '#1a1a2e').attr('font-size', '16px').attr('font-weight', '800').text('AI');
 });
 
 // Branch nodes (depth 1 OR depth 2 with children)
@@ -291,7 +310,7 @@ nodeG.filter(isBranch).each(function(d) {
   var txtOff = d.depth === 1 ? 52 : 44;
   var txtSz = d.depth === 1 ? '10px' : '9px';
   el.append('rect').attr('class', 'node-bg').attr('x', -sz).attr('y', -sz).attr('width', sz*2).attr('height', sz*2).attr('rx', 20).attr('fill', '#fff').attr('stroke', c).attr('stroke-width', 1.2).attr('stroke-opacity', 0.25);
-  if (d.data.img) el.append('image').attr('href', d.data.img).attr('x', -imgOff).attr('y', -imgOff).attr('width', imgSz).attr('height', imgSz).attr('clip-path', 'inset(0 round '+(imgSz/2)+'px)').attr('preserveAspectRatio', 'xMidYMid slice');
+  if (d.data.img) el.append('image').attr('href', d.data.img).attr('x', -imgOff).attr('y', -imgOff).attr('width', imgSz).attr('height', imgSz).attr('clip-path', 'inset(0 round 12px)').attr('preserveAspectRatio', 'xMidYMid slice');
   d.data.name.split('\n').forEach(function(line, i) {
     el.append('text').attr('text-anchor', 'middle').attr('dy', txtOff + i * 13).attr('fill', '#2a2a3e').attr('font-size', txtSz).attr('font-weight', '600').text(line);
   });
@@ -330,6 +349,46 @@ var zm = d3.zoom().scaleExtent([0.3, 8]).on('zoom', function(e) {
 });
 svg.call(zm).call(zm.transform, d3.zoomIdentity.translate(W/2, H/2));
 
+// ── Cross-reference map ──
+var nodeMap = {};
+root.descendants().forEach(function(nd) {
+  if (nd.depth === 0) return;
+  var name = nd.data.name.replace(/\n/g, ' ');
+  nodeMap[name] = nd;
+});
+// Sort by length desc so longer names match first (e.g. "Claude Code" before "Claude")
+var nodeNames = Object.keys(nodeMap).sort(function(a, b) { return b.length - a.length; });
+var linkRx = new RegExp('\\b(' + nodeNames.map(function(n) { return n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'g');
+
+function linkify(text) {
+  return text.replace(linkRx, function(match) {
+    return '<a class="node-link" data-node="' + match + '" href="#">' + match + '</a>';
+  });
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('node-link')) {
+    e.preventDefault();
+    e.stopPropagation();
+    var nd = nodeMap[e.target.dataset.node];
+    if (!nd) return;
+    hideBook();
+    var hasCh = nd.children && nd.children.length > 0;
+    if (hasCh) {
+      focus = nd; ui();
+      zoomTo(nd, 500, function() { var p = screenPos(nd); showBook(nd, p[0], p[1]); });
+    } else {
+      focus = nd.parent; ui();
+      var s = nd.depth >= 3 ? 5.5 : 2.8;
+      var tx = W * 0.35 - nd.cx * s, ty = H / 2 - nd.cy * s;
+      animating = true;
+      svg.transition().duration(500).ease(d3.easeCubicInOut)
+        .call(zm.transform, d3.zoomIdentity.translate(tx, ty).scale(s))
+        .on('end', function() { animating = false; var p = screenPos(nd); showBook(nd, p[0], p[1]); });
+    }
+  }
+});
+
 // ── Book card ──
 function showBook(d, sx, sy) {
   var det = D[d.data.name]; if (!det) return;
@@ -339,9 +398,9 @@ function showBook(d, sx, sy) {
   var st = det.st ? '<div class="book-stat">' + det.st.map(function(s) { return '<div class="book-stat-item"><div class="book-stat-value" style="color:'+c+'">'+s[0]+'</div><div class="book-stat-label">'+s[1]+'</div></div>'; }).join('') + '</div>' : '';
 
   bookC.innerHTML = '<div class="book-tag" style="color:'+c+'">'+cat+'</div><div class="book-title">'+nm+'</div><div class="book-divider" style="background:'+c+'"></div>'+st+
-    '<div class="book-section"><div class="book-section-title">What is it</div><div class="book-section-text">'+det.what+'</div></div>'+
-    '<div class="book-section"><div class="book-section-title">What makes it different</div><div class="book-section-text">'+det.diff+'</div></div>'+
-    '<div class="book-section"><div class="book-section-title">Why your company should care</div><div class="book-section-text">'+det.biz+'</div></div>';
+    '<div class="book-section"><div class="book-section-title">What is it</div><div class="book-section-text">'+linkify(det.what)+'</div></div>'+
+    '<div class="book-section"><div class="book-section-title">What makes it different</div><div class="book-section-text">'+linkify(det.diff)+'</div></div>'+
+    '<div class="book-section"><div class="book-section-title">Why your company should care</div><div class="book-section-text">'+linkify(det.biz)+'</div></div>';
 
   book.style.borderColor = c;
   bookNode = d;
@@ -404,8 +463,8 @@ nodeG.on('click', function(ev, d) {
   if (bookNode === d) { hideBook(); return; }
   hideBook();
 
-  // Click root — show hero
-  if (d.depth === 0) { expandHero(); return; }
+  // Click root — zoom to overview
+  if (d.depth === 0) { focus = root; ui(); zoomTo(root, 500); return; }
 
   // Is this a "branch" node (has children)?
   var hasCh = d.children && d.children.length > 0;
