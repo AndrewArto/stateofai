@@ -295,7 +295,8 @@ var svg = d3.select('body').append('svg').attr('width', W).attr('height', H);
 var g = svg.append('g'), gL = g.append('g'), gN = g.append('g');
 
 var root = d3.hierarchy(toH(data));
-d3.tree().size([2 * Math.PI, Math.min(W, H) * 0.55])
+var treeR = (W < 768) ? Math.max(W, H) * 0.95 : Math.min(W, H) * 0.55;
+d3.tree().size([2 * Math.PI, treeR])
   .separation(function(a, b) {
     var sib = a.parent === b.parent;
     if (a.depth === 1) return sib ? 2.2 : 3.8;
