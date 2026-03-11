@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State of AI — 2026 Landscape</title>
+<meta name="description" content="An interactive map of the AI landscape in 2026 — who builds it, who uses it, and what it means for your company.">
+<meta property="og:title" content="The State of AI for Decision Makers">
+<meta property="og:description" content="An interactive map of the AI landscape in 2026. 6 categories, 32 topics, zero jargon.">
+<meta property="og:image" content="https://ai.tripleadigital.io/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://ai.tripleadigital.io">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The State of AI for Decision Makers">
+<meta name="twitter:description" content="An interactive map of the AI landscape in 2026. 6 categories, 32 topics, zero jargon.">
+<meta name="twitter:image" content="https://ai.tripleadigital.io/img/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #f8f7f4; overflow: hidden; width: 100vw; height: 100vh; cursor: grab; }
+  body:active { cursor: grabbing; }
+  .bg-img { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: url('img/bg.webp') center/cover no-repeat; opacity: 0.3; }
+  svg { display: block; position: relative; z-index: 1; }
+  .link { fill: none; stroke-linecap: round; }
+  .node-g { cursor: pointer; }
+  .node-g:hover .node-bg { filter: brightness(0.97); }
+
+  .hero { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: all 0.5s ease-out; }
+  .hero.collapsed { opacity: 0; pointer-events: none !important; transform: translateY(20px); visibility: hidden; }
+  .hero-card {
+    pointer-events: auto;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 50%, #3a2d6e 100%);
+    border-radius: 24px; padding: 40px 48px 36px; max-width: 520px; width: 90%;
+    text-align: center; color: #fff;
+    box-shadow: 0 20px 60px rgba(26,26,46,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .hero-title { font-family: 'Lora', Georgia, serif; font-size: 28px; font-weight: 600; line-height: 1.3; margin-bottom: 16px; letter-spacing: -0.3px; }
+  .hero-title span { background: linear-gradient(90deg, #818cf8, #c084fc, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-desc { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.65); margin-bottom: 28px; }
+  .hero-btn { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px 28px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; letter-spacing: 0.3px; }
+  .hero-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .mini-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: auto; background: rgba(26,26,46,0.85); color: rgba(255,255,255,0.7); padding: 8px 20px; border-radius: 20px; font-size: 12px; cursor: pointer; opacity: 0; transition: all 0.4s ease; white-space: nowrap; }
+  .mini-bar.show { opacity: 1; }
+  .mini-bar:hover { background: rgba(26,26,46,0.95); color: #fff; }
+
+  .book-card { position: fixed; z-index: 20; width: 380px; background: #fffdf8; border: 1px solid rgba(0,0,0,0.08); border-radius: 4px 16px 16px 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 28px 28px 24px 32px; overflow-y: auto; opacity: 0; transform: scaleX(0); pointer-events: none; cursor: default; border-left: 3px solid #ddd; will-change: transform, opacity; -webkit-overflow-scrolling: touch; }
+  .book-card.show { opacity: 1; transform: scaleX(1); pointer-events: auto; transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.25s ease-out; }
+  .book-card.hide { opacity: 0; transform: scaleX(0); transition: transform 0.2s ease-in, opacity 0.15s ease-in; }
+  .book-card.right { transform-origin: left center; border-radius: 4px 16px 16px 4px; border-left: 3px solid; border-right: none; }
+  .book-card.left { transform-origin: right center; border-radius: 16px 4px 4px 16px; border-right: 3px solid; border-left: none; }
+
+  .book-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 18px; color: #a0a0a8; cursor: pointer; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .book-close:hover { background: rgba(0,0,0,0.04); color: #5a5a6e; }
+  .book-tag { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 8px; }
+  .book-title { font-family: 'Lora', Georgia, serif; font-size: 22px; font-weight: 600; color: #1a1a2e; line-height: 1.25; margin-bottom: 14px; }
+  .book-divider { width: 40px; height: 2px; margin-bottom: 16px; border-radius: 1px; }
+  .book-section { margin-bottom: 16px; }
+  .book-section-title { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8a8a9a; margin-bottom: 5px; }
+  .book-section-text { font-family: 'Lora', Georgia, serif; font-size: 13.5px; line-height: 1.7; color: #3a3a4e; }
+  .book-stat { display: flex; gap: 16px; margin-bottom: 16px; }
+  .book-stat-item { flex: 1; }
+  .book-stat-value { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+  .book-stat-label { font-size: 10px; color: #8a8a9a; margin-top: 2px; }
+
+  .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 10; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+  .topbar > * { pointer-events: auto; }
+  .logo { font-size: 14px; font-weight: 700; color: #1a1a2e; letter-spacing: -0.3px; }
+  .logo span { color: #a0a0a8; font-weight: 400; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .crumb { cursor: pointer; color: #8080a0; transition: color 0.15s; }
+  .crumb:hover { color: #4040a0; }
+  .crumb.active { color: #3a3a5e; font-weight: 500; }
+  .sep { color: #c0c0c8; }
+  .btn { background: rgba(255,255,255,0.9); border: 1px solid rgba(0,0,0,0.08); color: #5a5a6e; padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+  .btn:hover { background: #fff; color: #2a2a4e; }
+  .credit { position: fixed; bottom: 10px; right: 20px; z-index: 5; font-size: 10px; color: #b0b0b8; }
+  .credit a { color: inherit; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="bg-img"></div>
+<div class="topbar">
+  <div class="logo">State of AI <span>2026</span></div>
+  <div class="breadcrumb" id="bc"></div>
+  <button class="btn" id="btnOut" style="opacity:0;pointer-events:none">← Zoom Out</button>
+</div>
+<div class="hero" id="hero">
+  <div class="hero-card">
+    <div class="hero-title">The <span>State of AI</span><br>for Decision Makers</div>
+    <div class="hero-desc">An interactive map of the AI landscape in 2026 — who builds it, who uses it, and what it means for your company. 9 categories, 45+ topics. Click any branch to explore.</div>
+    <button class="hero-btn" id="heroBtn">Explore the map</button>
+  </div>
+</div>
+<div class="mini-bar" id="miniBar">The State of AI — 2026 · Click any branch to explore</div>
+<div class="book-card hide" id="book"><button class="book-close" id="bookX">×</button><div id="bookC"></div></div>
+<div class="credit"><a href="https://tripleadigital.io" target="_blank">TripleA Digital</a></div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+var D = {
+  "Foundation\nModels": { what: "These are the companies that build the core AI technology — the large language models (LLMs) that power every AI product you see. Think of them as the engine manufacturers: everyone else builds cars, but these companies build the engines inside.", diff: "This is a winner-take-most market. Building a frontier model costs $100M-$1B+ and requires rare talent. Only 7-10 companies in the world can do it. Everyone else uses their models via API or open-source releases.", biz: "You will never build your own foundation model (and shouldn't try). Your strategic decision is which provider to bet on: OpenAI (market leader), Anthropic (safety/quality), Google (ecosystem), Meta (open-source/control). Most companies should use 2-3 providers to avoid lock-in.", st: [["$100M-1B+","Cost to train"],["7-10","Can do this"],["2-3","Providers recommended"]] },
+  "AI\nAssistants": { what: "AI assistants are the consumer-facing products built on foundation models. They're the 'apps' your employees use daily — chatting, analyzing documents, drafting emails, summarizing meetings. This is what most people mean when they say 'AI.'", diff: "The battle is about ecosystem lock-in. ChatGPT has the users, Gemini has Google Workspace, Copilot has Microsoft 365. The winner isn't the smartest model — it's the one embedded in your existing tools.", biz: "This is your 'Deploy Now' category. Every knowledge worker should have access to at least one AI assistant today. Productivity gains are proven (1-2 hours/day saved), cost is trivial ($20-30/user/month). If competitors have this and you don't, you're falling behind.", st: [["1-2 hrs/day","Time saved"],["$20-30","Per user/month"],["Now","Deploy immediately"]] },
+  "AI for\nDevelopment": { what: "AI tools designed to help developers write, review, debug, and ship code faster. The most mature and proven category of AI tooling — with measurable ROI and widespread adoption.", diff: "This isn't 'AI replacing developers.' It's 'your team of 10 now produces what used to require 25.' Biggest impact on routine work — boilerplate, tests, docs, bug fixes. Senior devs become AI supervisors; juniors level up faster.", biz: "The math is simple: GitHub Copilot costs $19/mo per developer and saves 30-55% of coding time. Developer at $150K/year = $50-80K productivity gained for $228/year. This is the highest-ROI AI investment today. If your dev team isn't using these, ask your CTO why.", st: [["30-55%","Coding time saved"],["$19/mo","Per dev (Copilot)"],["350x","ROI ratio"]] },
+  "AI\nAgents": { what: "AI agents represent the next evolution: AI that doesn't just answer questions but takes autonomous action. They browse the web, send emails, fill forms, manage workflows, and make decisions — without human intervention for each step.", diff: "This is where AI goes from 'smart assistant' to 'digital worker.' The shift from answering to acting is as significant as the shift from search engines to smartphones. We're in the early innings — think 2007 iPhone era.", biz: "Don't bet the business on agents yet, but don't ignore them. Allocate 10% of your AI budget to experimentation. Start with low-risk, high-volume workflows (email triage, document routing, basic customer queries). Build muscle now — when agents mature in 18-24 months, you'll be ready.", st: [["10%","Of AI budget"],["18-24 mo","To maturity"],["Low-risk first","Email, docs, routing"]] },
+  "Creative\nAI": { what: "AI tools that generate images, video, voice, and music. Transforming marketing, content production, and creative workflows. Quality crossed the 'good enough for production' threshold in 2025.", diff: "The economics are staggering: what cost $10,000 for a photo shoot or $50,000 for video can now be done for $100 or less. Speed went from weeks to minutes. The bottleneck shifted from production to creative direction.", biz: "Your marketing team should be using these today. Start with image generation for social media and ad creatives (Midjourney/DALL-E). Experiment with AI voice for internal content (ElevenLabs). Monitor video for 2027 readiness. Warning: copyright landscape unsettled — use for original content only.", st: [["100x","Cost reduction"],["Minutes","Not weeks"],["Use now","Images & voice"]] },
+  "Your AI\nStrategy": { what: "The practical framework for making AI decisions in your company. Not a technology question — a business strategy question. The goal isn't 'use AI everywhere' but 'use AI where it creates measurable value.'", diff: "Most companies fail at AI not because the technology doesn't work, but because they skip measurement. Deploy without baselines, scale before piloting, decide based on demos instead of data.", biz: "Four rules: (1) Deploy proven tools immediately. (2) Pilot one ambitious use case per quarter with clear metrics. (3) Allocate 10% budget to experimentation. (4) Never decide based on a demo — demand a pilot with your data, your workflows, your metrics.", st: [["70%","AI projects fail"],["#1 cause","No measurement"],["4 rules","Deploy, Pilot, Experiment, Measure"]] },
+  "OpenAI": { what: "The company behind ChatGPT, DALL-E, and Sora. Founded 2015 as non-profit, now backed by Microsoft with $13B+ investment. Largest consumer AI company in the world.", diff: "First-mover advantage and brand recognition. ChatGPT became synonymous with AI. Strongest distribution — 200M+ weekly users, enterprise API used by thousands of companies.", biz: "If you're only going to try one AI tool, this is probably it. ChatGPT Team ($25/user/mo) for productivity. API for custom solutions. Most employees already use it — better to enable than ban.", st: [["$157B","Valuation"],["200M+","Weekly users"],["GPT-4o, o3","Latest models"]] },
+  "Anthropic": { what: "AI safety research lab founded by ex-OpenAI leaders. Built Claude — considered the most thoughtful and careful AI assistant. Backed by Google ($2B) and Amazon ($4B).", diff: "Safety-first means fewer hallucinations and more reliable outputs. 200K token context — can process a 500-page document in one shot. Strongest at analysis, writing, and code.", biz: "Best for legal, consulting, finance — anywhere accuracy matters more than creativity. Claude Enterprise offers private deployment with no data training. Ideal for sensitive industries.", st: [["$18B","Valuation"],["200K","Context tokens"],["Claude 4","Latest model"]] },
+  "Google\nDeepMind": { what: "Google's combined AI research lab (Google Brain + DeepMind). Created AlphaGo, AlphaFold, and Gemini. Deepest AI research talent in the world.", diff: "Unique advantage: integration with Google ecosystem (Search, Gmail, Docs, Cloud). AlphaFold solved protein folding — a 50-year grand challenge. Gemini is natively multimodal.", biz: "If your company runs on Google Workspace, Gemini is the path of least resistance — it's already there. Google Cloud AI for enterprise ML.", st: [["1.8B","Gemini users"],["Gemini 2.5","Latest model"],["Nobel Prize","AlphaFold"]] },
+  "Meta AI": { what: "Meta's AI division releasing open-source models (Llama family). Zuckerberg's bet: give AI away free to prevent any single company from controlling the technology.", diff: "The 'Android strategy' for AI. Llama models are free to download, modify, deploy. No vendor lock-in, no API costs, full control. Massive community on top.", biz: "If you want AI on your own infrastructure with full data privacy — Llama. No per-token costs. Customize for your domain. Best for companies with technical teams who want control.", st: [["400M+","Llama downloads"],["Free","No licensing"],["Llama 4","Latest model"]] },
+  "Mistral": { what: "French AI lab, ex-Google/Meta researchers. Champions of efficient open-weight models. Europe's answer to Silicon Valley AI labs.", diff: "Efficiency leaders — models punch above their weight at lower compute cost. European data sovereignty (GDPR-native). Open-weight approach.", biz: "Strong choice for European companies needing GDPR compliance. Lower inference costs. Mistral Large competes with GPT-4 at lower price.", st: [["$6B","Valuation"],["EU-based","GDPR native"],["Mistral Large","Latest"]] },
+  "xAI": { what: "Elon Musk's AI company, building Grok. Exclusive access to X (Twitter) real-time data and massive compute cluster (100K+ GPUs).", diff: "Real-time information from X/Twitter gives unique data advantage. Less restrictive content policies.", biz: "Most useful as alternative perspective — less filtered than competitors. Real-time social media analysis via X integration. Still maturing for enterprise.", st: [["$50B+","Valuation"],["100K+","H100 GPUs"],["Grok 3","Latest"]] },
+  "DeepSeek": { what: "Chinese AI lab that shocked the industry in early 2025. R1 model matched GPT-4 at a fraction of training cost. Raised existential questions about the compute race.", diff: "Proved throwing money at compute isn't the only path. Novel architecture (Mixture of Experts). Open-weight. Extremely cost-efficient.", biz: "Wake-up call: top-tier AI may cost less than assumed. API dramatically cheaper than alternatives. Consider for high-volume, cost-sensitive cases. Note: data jurisdiction (China) concern.", st: [["$5.6M","Training cost"],["~95%","of GPT-4"],["Open source","Full weights"]] },
+  "ChatGPT": { what: "OpenAI's flagship product. Fastest-growing consumer app in history. Text, voice, image, files, web browsing, code — all in one chat.", diff: "Swiss army knife of AI. Broadest feature set: voice, DALL-E, data analysis, web, custom GPTs. Largest user base means fastest iteration.", biz: "Lowest-friction way to get your team using AI today. Team plan ($25/user/mo) with admin controls. Most employees already know it.", st: [["200M+","Weekly users"],["$20-25","Per user/mo"],["#1","Consumer AI"]] },
+  "Claude": { what: "Anthropic's AI assistant. Careful, nuanced responses, exceptional long-document analysis, strong coding. Web, API, and enterprise deployment.", diff: "200K token context — reads books, contracts, codebases. Less hallucination. Best at complex multi-step instructions. Top writing quality.", biz: "Ideal for knowledge work: legal review, due diligence, research, technical writing. Enterprise plan: zero data retention.", st: [["200K","Token context"],["Zero retention","Enterprise"],["Top-tier","Code & analysis"]] },
+  "Gemini": { what: "Google's AI assistant, deeply integrated into Google ecosystem. Gmail, Docs, Sheets, Slides, Meet. Natively multimodal.", diff: "Integration advantage: no new tools, no data migration. Works inside Gmail, Sheets, Docs. Google's search index for factual grounding.", biz: "If you use Google Workspace, easiest AI deployment possible — already built in. $20/user/mo add-on. Minimal change management.", st: [["1.8B+","Potential users"],["Built-in","No new tools"],["$20/mo","Per user"]] },
+  "Perplexity": { what: "AI-powered search engine answering questions with cited sources. Synthesized answers with footnotes you can verify.", diff: "Every answer has numbered citations. Reduces hallucination risk. Faster than Google for research. Pro Search does multi-step reasoning.", biz: "Replacing Google for research. Market analysis, competitive intelligence, due diligence — answers with sources in seconds. Business plan available.", st: [["$9B","Valuation"],["100M+","Monthly queries"],["Citations","Every answer"]] },
+  "Microsoft\nCopilot": { what: "AI across entire Microsoft 365 — Word, Excel, PowerPoint, Outlook, Teams. Strategy to keep enterprises in ecosystem.", diff: "Works where employees already work. PowerPoints from Word, Excel analysis in natural language, meeting summaries. Enterprise security.", biz: "If you run on M365, this is the enterprise play. $30/user/mo. ROI: 1.2 hours saved per employee per day. Ask your Microsoft rep for a pilot.", st: [["$30","Per user/mo"],["1.2hrs","Daily saved"],["Fortune 500","Market"]] },
+  "GitHub\nCopilot": { what: "AI pair programmer. Code suggestions, explanations, test generation, multi-file changes. 1.8M+ developers.", diff: "Most adopted coding AI. Deep IDE integration. 30-55% faster task completion across all languages.", biz: "Most proven ROI in dev tools. $19/mo per developer. If your devs aren't using it, they're behind competitors who are.", st: [["1.8M+","Developers"],["$19/mo","Per dev"],["55%","Speed gain"]] },
+  "Cursor": { what: "AI-native code editor on VS Code. Designed from ground up around AI. Describe what you want; AI writes across multiple files.", diff: "Agentic editing — plans and executes multi-file changes. 'Composer' mode: describe a feature, watch it get built. Fastest-growing dev tool 2025.", biz: "Future of dev tooling. Best for greenfield and large refactors. $20/mo. Consider alongside or instead of Copilot for AI-first teams.", st: [["$20/mo","Per dev"],["#1","Fastest-growing IDE"],["Multi-file","Agentic"]] },
+  "Claude\nCode": { what: "Anthropic's terminal-based coding agent. Command line, understands entire codebase, plans/writes/tests/debugs autonomously.", diff: "Terminal-first — works in existing dev environment. Explores codebases, runs tests, fixes failures, commits. Best at large codebases and complex refactors.", biz: "Best for senior devs with large, complex codebases. Reduces routine tasks. Included with Claude Pro. Powerful for refactoring and tech debt.", st: [["CLI-based","No IDE needed"],["Full codebase","Context"],["Included","Claude Pro"]] },
+  "Codex CLI": { what: "OpenAI's terminal coding agent. Runs locally, executes commands, writes and tests code autonomously.", diff: "OpenAI ecosystem. Strong at precise specs. Good one-shot task completion.", biz: "Alternative to Claude Code for OpenAI-invested teams. Best for discrete tasks. Still maturing.", st: [["OpenAI","GPT/o-series"],["Terminal","Native CLI"],["Autonomous","Completion"]] },
+  "Windsurf": { what: "AI IDE by Codeium. 'Cascade' flow-based coding — AI tracks intent across multiple steps and files.", diff: "Cascade flows: tracks intent across edit sequences. Strong free tier. Good project context understanding.", biz: "Strong Cursor alternative with generous free tier. Good for evaluating AI IDEs without commitment.", st: [["Free tier","Available"],["Cascade","Flow-based"],["Growing","2025 breakout"]] },
+  "Devin": { what: "First 'AI software engineer' by Cognition Labs. Plans, writes, sets up environments, debugs, delivers end-to-end.", diff: "Fully autonomous — planning to deployment. Uses browser, terminal, editor simultaneously. Cutting edge of coding agents.", biz: "Early and expensive ($500/mo). Best for standalone tasks: prototypes, scripts, migrations. Not replacing devs yet. Monitor closely.", st: [["$500/mo","Starting"],["End-to-end","Autonomous"],["Cognition","YC-backed"]] },
+  "What Are\nAgents?": { what: "AI agents go beyond Q&A. Give them a goal ('Book cheapest flight to NYC'), they plan steps, use tools, make decisions, execute.", diff: "Difference between calculator and accountant. Regular AI answers. Agents take action: browse web, call APIs, send emails, fill forms.", biz: "Direction all major AI companies are heading. In 2026, start with simple agent workflows. Build muscle for when agents mature 2027-28.", st: [["Goal-driven","Not prompts"],["Multi-step","Plan→Act→Verify"],["2025-2028","Window"]] },
+  "Business\nUse Cases": { what: "Where agents create value today: customer support, sales personalization, financial reconciliation, compliance monitoring, ops automation.", diff: "ROI clearest where tasks are repetitive, rule-based, high-volume. Support tickets, invoices, lead qualification — first dominos.", biz: "Start with ONE workflow. Measure before and after. Support automation typically 40-60% handling time reduction. Scale after proving value.", st: [["40-60%","Time reduction"],["24/7","Available"],["Support, Sales","Top uses"]] },
+  "MCP\nProtocol": { what: "Model Context Protocol — open standard by Anthropic. Lets AI connect to external tools and data. Think 'USB for AI.'", diff: "Before MCP, every integration was custom. MCP standardizes AI-to-tool connections. Adopted by Anthropic, OpenAI, Google.", biz: "Important for your CTO. Build one integration, works with any model. Reduces vendor lock-in. Build on MCP from day one.", st: [["Open","No lock-in"],["Anthropic-led","Industry-wide"],["Universal","Any model"]] },
+  "Computer\nUse": { what: "AI agents that control a computer — clicking, filling forms, navigating websites, operating desktop apps.", diff: "AI sees the screen and uses mouse/keyboard. Can automate ANY software, including legacy with no API. Fundamental automation shift.", biz: "Game-changer for legacy systems. That old ERP with no API? Agent can operate it. ~85% accuracy on complex tasks. Start low-stakes.", st: [["~85%","Complex accuracy"],["Any software","No API needed"],["Anthropic+OpenAI","Competing"]] },
+  "Risks &\nReality": { what: "Honest assessment: agents hallucinate actions, make irreversible mistakes, amplify errors at scale. Human oversight essential.", diff: "Text hallucination is embarrassing. Action hallucination (wrong email, wrong payment, deleted data) is damaging. Stakes are higher.", biz: "Always human-in-the-loop for high stakes. Start co-pilot (AI suggests, human approves) before auto-pilot. Monitor error rates. Don't believe 'full automation.'", st: [["Human-in-loop","Required"],["Co-pilot first","Then auto"],["Monitor","Always"]] },
+  "Agent\nFrameworks": { what: "Agent frameworks are the infrastructure layer that makes AI agents actually work in the real world. They handle the hard parts: connecting AI models to your tools (email, calendar, databases, APIs), managing conversations across channels (Telegram, Slack, WhatsApp), running background tasks, and keeping agents safe and controllable.", diff: "Without a framework, building an AI agent means months of custom plumbing — auth, tool integration, memory, multi-channel messaging, safety guardrails. Frameworks like OpenClaw, LangChain, CrewAI, and AutoGen provide this out of the box. OpenClaw is notable for being a personal AI operating system — it runs locally, connects to your real tools and devices, and lets you build agents that actually do things in your life and work.", biz: "This is the 'picks and shovels' layer of the agent gold rush. If you're building any AI automation beyond basic chatbots, you need a framework. Evaluate: OpenClaw (personal/SMB, local-first, real tool integration), LangChain (developer toolkit, maximum flexibility), CrewAI (multi-agent teams), AutoGen (Microsoft, enterprise). Start with a framework — don't build from scratch.", st: [["OpenClaw","Personal AI OS"],["LangChain","Dev toolkit"],["CrewAI","Multi-agent"]] },
+  "Midjourney": { what: "Leading AI image generation. Photorealistic images, illustrations, concept art from text. Exceptional aesthetic quality.", diff: "Best aesthetics. While DALL-E follows instructions better, Midjourney produces the most stunning results. Strong style ecosystem.", biz: "Marketing: mockups in minutes, ad creatives at 1/10th cost, social content at scale. Warning: copyright unresolved — use for original IP only.", st: [["16M+","Discord users"],["$10-30/mo","Plans"],["#1","Image quality"]] },
+  "DALL-E 3": { what: "OpenAI's image generator in ChatGPT. Best at understanding complex text prompts — describe exactly what you want.", diff: "Best text understanding. Handles detailed, specific prompts. Integrated into ChatGPT. Strong at text-in-images and precise compositions.", biz: "Most accessible — team uses it in ChatGPT, no new tool. Great for mockups, presentations, documentation.", st: [["In ChatGPT","No extra tool"],["Best text","Accuracy"],["API","Programmable"]] },
+  "Sora": { what: "OpenAI's video generation. Short clips (5-15 sec) from text. State of the art in AI video, still early.", diff: "Most physically realistic AI video. Natural movement, consistent lighting, smooth camera. Limited to short clips, advancing rapidly.", biz: "Not production-ready yet. Experiment with social short-form, concept videos, internal demos. By 2027 expect commercial quality.", st: [["5-15 sec","Clip length"],["2027","Maturity"],["$200/mo","Pro includes"]] },
+  "ElevenLabs": { what: "AI voice synthesis and cloning. Clone any voice with 30 seconds of audio. Podcasts, audiobooks, dubbing, IVR.", diff: "Best voice quality — often indistinguishable from human. 29+ languages. Eerily accurate cloning. Strong API.", biz: "Massive savings for content creation. Training videos, podcasts, multilingual support. Note: deepfake concerns — use ethically.", st: [["29+","Languages"],["30 sec","To clone"],["$5-99/mo","Tiers"]] },
+  "Suno": { what: "AI music generation. Describe a song — genre, mood, lyrics — get full production-quality track in seconds.", diff: "Full songs with vocals, instruments, production. Not just beats. Copyright-safe originals. Quality jumped dramatically.", biz: "Commoditizes background music: ads, hold music, podcast intros, videos. No licensing fees. Use for original content.", st: [["Full songs","Vocals+instruments"],["$8-24/mo","Plans"],["Copyright-safe","Original"]] },
+  "Deploy\nNow": { what: "Immediate ROI: AI assistants (ChatGPT/Claude), dev tools (Copilot/Cursor), basic automation. Zero reason to wait.", diff: "Proven ROI with millions of users. Near-zero risk, low cost ($20-50/user/mo), measurable gains within first month.", biz: "Step 1: ChatGPT/Claude for knowledge workers. Step 2: Copilot for devs. Step 3: Automate 3 repetitive workflows. Measure everything.", st: [["$20-50","Per user/mo"],["1 month","To results"],["Low risk","Proven"]] },
+  "Pilot This\nQuarter": { what: "Pilot tier: AI customer support, document processing, sales intelligence, AI-powered knowledge base. Pick ONE.", diff: "More setup than Deploy Now, but larger ROI. Automate 40% of tickets, cut review time 60%, double qualified leads.", biz: "Choose highest-volume pain point. Internal champion. 90-day pilot with clear metrics. Don't try all at once.", st: [["90 days","Pilot"],["1 use case","Focus"],["40-60%","Efficiency gain"]] },
+  "Watch &\nLearn": { what: "'Not yet' tier: fully autonomous agents, commercial-scale AI video, complete code gen. Impressive in demos, not production-ready.", diff: "Gap between demo and production is still large. Works in controlled environments, fails in messy real world. 12-24 months.", biz: "5-10% of AI budget for experimentation. Internal proofs of concept. Stay informed. Don't bet the business. Don't be caught flat-footed.", st: [["12-24 mo","To maturity"],["5-10%","Budget"],["Experiment","Don't deploy"]] },
+  "Avoid\nThese Traps": { what: "Expensive mistakes: custom LLM ($10M+), replacing all devs with AI, outsourcing all support to AI, hype-driven decisions.", diff: "Pattern: believing demos = production. Every failed AI project started with 'but the demo was amazing.' Demo is never the product.", biz: "Red flags: no pilot phase, no metrics, vendor lock-in, 'we need our own LLM', 'just replace all the...' Biggest risk isn't AI — it's hype without measurement.", st: [["$10M+","Custom LLM cost"],["70%","Projects fail"],["#1 cause","No measurement"]] },
+  "AI in Your\nCompany": { what: "This is the practical section — everything about actually deploying AI in your organization. From strategy (what to invest in) to data (connecting AI to your knowledge), infrastructure (self-hosting vs cloud), and operations (monitoring, costs, security).", diff: "The technology categories tell you what exists. This category tells you what to DO about it. Four sub-areas that together form a complete AI adoption roadmap for any company.", biz: "Start with Strategy (what to invest in now), then Data + AI (connect your knowledge), then consider Run It Yourself (if privacy matters), and always plan for Production (monitoring, costs, security). In that order.", st: [["4 areas","Complete roadmap"],["Strategy first","Then data, infra, ops"],["Any company","Any size"]] },
+  "Build vs\nBuy vs Consult": { what: "The three paths for every AI initiative: build it yourself (custom dev), buy a product (SaaS), or hire consultants. Each has a place, but most companies pick wrong and waste 6-12 months.", diff: "Build = full control, high cost, slow. Buy = fast, limited customization. Consult = expertise without headcount, but expensive per hour. The real skill is knowing which path fits which problem.", biz: "Rule of thumb: Buy for standard workflows (support, docs, search). Build only when AI is your core differentiator. Consult when you need strategy or a one-time complex integration. Never build what you can buy, never buy what doesn't fit.", st: [["Buy first","Standard workflows"],["Build if","Core differentiator"],["Consult for","Strategy + complex"]] },
+  "Your Data\n+ AI": { what: "The most valuable AI applications use YOUR data — your documents, knowledge base, customer history, internal processes. This category is about connecting AI to what makes your company unique.", diff: "Generic AI (ChatGPT out of the box) knows the internet. But it doesn't know your internal policies, your product specs, your customer conversations. The companies getting the most value from AI are the ones feeding it their own data.", biz: "This is where AI goes from 'nice tool' to 'competitive advantage.' Start with your most-used internal documents. Build a RAG pipeline. Every company has unique knowledge that, when connected to AI, creates something competitors can't copy.", st: [["Your data","= Your moat"],["RAG","Starting point"],["Unique","Competitors can't copy"]] },
+  "RAG": { what: "Retrieval-Augmented Generation — the technique of feeding AI your own documents at query time. Instead of hoping the model 'knows' your content, you retrieve relevant chunks and include them in the prompt. The most practical AI architecture for enterprises.", diff: "Without RAG, AI makes things up about your company. With RAG, it quotes your actual documents. It's the difference between an intern who read the internet and one who read your company handbook.", biz: "The #1 way to make AI useful for your specific business. Works with any model (OpenAI, Claude, Gemini). Start with internal docs, policies, product specs. Tools: LlamaIndex, LangChain, or managed solutions like Azure AI Search.", st: [["#1 technique","For enterprise AI"],["Any model","Works with all"],["Start with","Internal docs"]] },
+  "Vector\nSearch": { what: "A new type of search that understands meaning, not just keywords. Traditional search matches exact words. Vector search converts text into numbers (embeddings) that capture meaning — so 'car broke down' finds results about 'vehicle repair.'", diff: "Traditional search: you need to guess the exact words in the document. Vector search: you describe what you're looking for in natural language, and it finds semantically similar content. It's the backbone of RAG.", biz: "If you have a large knowledge base, vector search is transformative. Customer support finds answers faster. Internal search actually works. Pinecone, Weaviate, pgvector (in PostgreSQL), and Elasticsearch all offer it.", st: [["Meaning","Not keywords"],["Backbone","Of RAG"],["Pinecone, pgvector","Top solutions"]] },
+  "Fine-tune\nvs Prompt": { what: "Two ways to customize AI: prompting (telling the model what to do in the instructions) vs fine-tuning (actually retraining the model on your data). 90% of the time, prompting is the right answer.", diff: "Prompting is like giving detailed instructions to a smart employee. Fine-tuning is like sending them to a specialized course. Prompting is instant and cheap. Fine-tuning takes weeks, costs thousands, and can break things.", biz: "Start with prompting. Always. Add RAG if you need company-specific knowledge. Fine-tune ONLY when you need the model to behave in a fundamentally different way (specific writing style, domain-specific language, output format). Most companies never need fine-tuning.", st: [["90%","Prompting is enough"],["Add RAG","For your data"],["Fine-tune","Last resort"]] },
+  "Run It\nYourself": { what: "You don't have to send your data to OpenAI or Google. Open-source models can run on your own servers, your own cloud, even your own laptop. Full privacy, no API costs, complete control.", diff: "The open-source AI ecosystem has exploded. Models like Llama, Qwen, and Mistral are free and competitive with commercial offerings. Tools like Ollama make running them locally as easy as installing an app.", biz: "Consider self-hosting when: (1) data privacy is non-negotiable (legal, healthcare, defense), (2) you have high-volume use cases where API costs add up, (3) you need offline or air-gapped operation, (4) you want zero vendor dependency.", st: [["Free models","Llama, Qwen, Mistral"],["Full privacy","Your servers"],["$0 per token","No API costs"]] },
+  "Open Source\nModels": { what: "AI models with publicly available weights that anyone can download, run, modify, and deploy. Led by Meta (Llama), Alibaba (Qwen), Mistral, and a growing community of smaller labs.", diff: "Llama 4 and Qwen 2.5 now match GPT-4 level performance on most tasks. The gap between open and closed models has nearly vanished. Open models give you full control — customize for your domain, no usage limits, no data leaves your infrastructure.", biz: "If you have a technical team and care about data sovereignty, open models are the strategic play. No per-token costs (you pay only for compute). Fine-tune for your domain. Run on any cloud or on-premise. Best models: Llama 4 (general), Qwen 2.5 (multilingual), Mistral (efficient).", st: [["Llama 4","General purpose"],["Qwen 2.5","Multilingual"],["Free","No licensing"]] },
+  "Local AI": { what: "Running AI models directly on your laptop or workstation — no internet, no cloud, no API keys. Ollama and LM Studio make this as easy as installing a desktop app.", diff: "Ollama: one command to download and run any open model. LM Studio: visual interface with chat UI. Both free. A MacBook Pro M3 can run 70B parameter models at reasonable speed. Complete privacy — nothing leaves your machine.", biz: "Perfect for: developers experimenting, sensitive document analysis, offline environments, demo/prototyping without API costs. Not for: high-volume production (use cloud GPUs). Every technical employee should have Ollama installed.", st: [["Ollama","One command"],["LM Studio","Visual UI"],["Free","No API needed"]] },
+  "When\nSelf-Hosted": { what: "A decision framework for when to run your own AI vs using cloud APIs. Not every use case justifies self-hosting — it's a tradeoff between control, cost, and operational complexity.", diff: "Self-host when: regulated industry (HIPAA, financial), >$5K/mo API spend (break-even point), need for customization, air-gapped environments. Use APIs when: low volume, rapid experimentation, no ops team, time-to-market matters.", biz: "The break-even is roughly $5K/month in API costs — above that, self-hosting on cloud GPUs is cheaper. But factor in ops cost: someone needs to maintain it. Hybrid is often best: APIs for experimentation, self-hosted for production workloads.", st: [["$5K/mo","Break-even"],["Regulated","Must self-host"],["Hybrid","Often best"]] },
+  "AI in\nProduction": { what: "Getting AI to work in a demo is easy. Getting it to work reliably at scale, within budget, without security holes — that's the hard part. This is where most AI projects actually fail.", diff: "The 'last mile' of AI is operations: monitoring for hallucinations, managing costs that spiral with usage, securing against prompt injection and data leaks. Companies that nail ops win; companies that skip it get burned.", biz: "Before scaling ANY AI deployment: set up monitoring (are answers correct?), implement cost controls (budget alerts, caching), and do a security review (prompt injection, data exposure). These aren't optional — they're prerequisites.", st: [["Monitor","Correctness"],["Control","Costs"],["Secure","Data"]] },
+  "Monitoring &\nObservability": { what: "Tracking whether your AI is actually working correctly in production. Unlike traditional software, AI can fail silently — returning confident-sounding wrong answers without any error codes.", diff: "Traditional monitoring: 'is the server up?' AI monitoring: 'are the answers correct?' You need to track accuracy, hallucination rates, latency, user feedback, and model drift over time. Tools: LangSmith, Helicone, Langfuse.", biz: "If you can't measure it, you can't improve it. Log every AI interaction. Sample and review 5-10% of responses weekly. Track user thumbs-up/down. Set alerts for anomalies. This catches problems before your customers do.", st: [["LangSmith","Langfuse, Helicone"],["5-10%","Review weekly"],["Silent failures","AI-specific risk"]] },
+  "Cost\nControl": { what: "AI API costs can spiral fast — one poorly designed feature can burn $10K/month. Smart architecture choices (caching, model routing, prompt optimization) can cut costs 80% without losing quality.", diff: "GPT-4o costs 60x more than GPT-4o-mini. Most queries don't need the big model. Route simple questions to cheap models, complex ones to expensive models. Cache frequent responses. Shorten prompts. These small changes have massive impact.", biz: "Implement from day one: (1) model routing — cheap model first, escalate if needed, (2) semantic caching — same question = cached answer, (3) prompt compression — shorter prompts = lower costs, (4) budget alerts — never be surprised by the bill.", st: [["80%","Possible savings"],["Model routing","Cheap first"],["Caching","Same Q = cached A"]] },
+  "Security\nBasics": { what: "AI introduces new attack vectors that traditional security doesn't cover: prompt injection (tricking AI into ignoring instructions), data exfiltration (AI leaking sensitive data), and model poisoning.", diff: "Prompt injection is the SQL injection of AI — and most deployments are vulnerable. An attacker can craft inputs that make your AI ignore its system prompt, reveal confidential data, or take unauthorized actions.", biz: "Before deploying any customer-facing AI: (1) input sanitization — filter prompt injection attempts, (2) output filtering — don't expose raw model output, (3) least-privilege — AI should access only what it needs, (4) data classification — never feed sensitive data to AI without controls.", st: [["Prompt injection","#1 AI attack"],["Input/output","Filter both"],["Least privilege","Access control"]] },
+  "Workflow\nAutomation": { what: "Connecting AI to existing business tools via no-code/low-code platforms. n8n, Make (formerly Integromat), and Zapier let you build AI-powered workflows without writing code.", diff: "Instead of building custom integrations, these tools let you connect AI to your CRM, email, spreadsheets, and databases visually. 'When a support email arrives → AI categorizes it → routes to right team → drafts response' — built in 30 minutes.", biz: "The fastest path to AI ROI for non-technical teams. Start with email triage, document classification, or lead scoring. n8n (self-hosted, privacy-friendly), Make (powerful, visual), Zapier (simplest). 3 automation workflows can save a team 20+ hours/week.", st: [["n8n","Self-hosted"],["Make","Visual builder"],["20+ hrs/week","Typical savings"]] },
+  "Enterprise\nSearch": { what: "AI-powered search across all your company's tools — Slack, Docs, Notion, Confluence, email, CRM — in one place. Instead of searching 8 different apps, ask one question and get the answer with sources.", diff: "Traditional enterprise search is terrible — keyword-based, siloed by tool, returns 50 blue links. AI search understands your question, searches everywhere, and returns an actual answer with citations. Glean is the market leader.", biz: "If your employees spend >30 min/day searching for information (most do), this is immediate ROI. Glean ($10-15/user/mo) connects to 100+ enterprise apps. Alternatives: Notion AI (if you're Notion-native), Guru, Danswer (open-source).", st: [["Glean","Market leader"],["100+","App integrations"],["30 min/day","Typical time saved"]] },
+  "Voice Cloning\n& Dubbing": { what: "AI that replicates any voice with seconds of sample audio, and translates video into other languages with lip-sync. Separate from music generation — this is about speech, localization, and content production.", diff: "ElevenLabs leads voice cloning. HeyGen and Synthesia do AI video dubbing with lip-sync. A 10-minute English video can be dubbed into 30 languages in hours, not months. The original speaker's voice and lip movements are preserved.", biz: "Massive impact for: international companies (localize all content instantly), e-learning (one instructor, every language), marketing (test ads in multiple languages cheaply), internal comms (CEO speaks to every office in their language).", st: [["30 languages","In hours"],["Lip-sync","Preserved"],["ElevenLabs + HeyGen","Top tools"]] }
+};
+
+var data = {
+  n: "AI", tag: "The Big Picture", desc: "The AI landscape in 2026. Click any branch to explore.", c: "#3a3a5e",
+  ch: [
+    { n: "Foundation\nModels", tag: "Who Builds the Brains", desc: "A handful of companies build the core AI — the 'engines' powering everything else.", c: "#6366f1", img: "img/foundation.webp",
+      ch: [
+        { n: "OpenAI", c: "#6366f1", img: "img/openai.webp" },
+        { n: "Anthropic", c: "#6366f1", img: "img/anthropic.webp" },
+        { n: "Google\nDeepMind", c: "#6366f1", img: "img/google.webp" },
+        { n: "Meta AI", c: "#6366f1", img: "img/meta.webp" },
+        { n: "Mistral", c: "#6366f1", img: "img/mistral.webp" },
+        { n: "xAI", c: "#6366f1", img: "img/xai.webp" },
+        { n: "DeepSeek", c: "#6366f1", img: "img/deepseek.webp" }
+      ]},
+    { n: "AI\nAssistants", tag: "What You Already Use", desc: "Chat interfaces your team and competitors use daily.", c: "#0891b2", img: "img/assistants.webp",
+      ch: [
+        { n: "ChatGPT", c: "#0891b2", img: "img/chatgpt.webp" },
+        { n: "Claude", c: "#0891b2", img: "img/claude.webp" },
+        { n: "Gemini", c: "#0891b2", img: "img/gemini.webp" },
+        { n: "Perplexity", c: "#0891b2", img: "img/perplexity.webp" },
+        { n: "Microsoft\nCopilot", c: "#0891b2", img: "img/copilot.webp" },
+        { n: "Enterprise\nSearch", c: "#0891b2", img: "img/enterprise_search.webp" }
+      ]},
+    { n: "AI for\nDevelopment", tag: "The Developer Revolution", desc: "Not replacing developers — making each one 2-5x productive.", c: "#059669", img: "img/development.webp",
+      ch: [
+        { n: "GitHub\nCopilot", c: "#059669", img: "img/ghcopilot.webp" },
+        { n: "Cursor", c: "#059669", img: "img/cursor.webp" },
+        { n: "Claude\nCode", c: "#059669", img: "img/claudecode.webp" },
+        { n: "Codex CLI", c: "#059669", img: "img/codex.webp" },
+        { n: "Windsurf", c: "#059669", img: "img/windsurf.webp" },
+        { n: "Devin", c: "#059669", img: "img/devin.webp" }
+      ]},
+    { n: "AI\nAgents", tag: "The Next Wave", desc: "AI that takes actions, not just answers.", c: "#d97706", img: "img/agents.webp",
+      ch: [
+        { n: "What Are\nAgents?", c: "#d97706", img: "img/whatagents.webp" },
+        { n: "Business\nUse Cases", c: "#d97706", img: "img/business.webp" },
+        { n: "MCP\nProtocol", c: "#d97706", img: "img/mcp.webp" },
+        { n: "Computer\nUse", c: "#d97706", img: "img/computeruse.webp" },
+        { n: "Risks &\nReality", c: "#d97706", img: "img/risks.webp" },
+        { n: "Agent\nFrameworks", c: "#d97706", img: "img/frameworks.webp" },
+        { n: "Workflow\nAutomation", c: "#d97706", img: "img/workflow.webp" }
+      ]},
+    { n: "Creative\nAI", tag: "Beyond Text", desc: "Images, video, voice, music. Every creative medium, transformed.", c: "#9333ea", img: "img/creative.webp",
+      ch: [
+        { n: "Midjourney", c: "#9333ea", img: "img/midjourney.webp" },
+        { n: "DALL-E 3", c: "#9333ea", img: "img/dalle.webp" },
+        { n: "Sora", c: "#9333ea", img: "img/sora.webp" },
+        { n: "ElevenLabs", c: "#9333ea", img: "img/elevenlabs.webp" },
+        { n: "Suno", c: "#9333ea", img: "img/suno.webp" },
+        { n: "Voice Cloning\n& Dubbing", c: "#9333ea", img: "img/voiceclone.webp" }
+      ]},
+    { n: "AI in Your\nCompany", tag: "Making It Work For You", desc: "Strategy, data, infrastructure, production — everything about deploying AI in your organization.", c: "#7c3aed", img: "img/ainyourco.webp",
+      ch: [
+        { n: "Your AI\nStrategy", c: "#dc2626", img: "img/strategy.webp", tag: "So What Do You Do?", desc: "What to invest in now, what to pilot, what to ignore.",
+          ch: [
+            { n: "Deploy\nNow", c: "#dc2626", img: "img/deploynow.webp" },
+            { n: "Pilot This\nQuarter", c: "#dc2626", img: "img/pilot.webp" },
+            { n: "Watch &\nLearn", c: "#dc2626", img: "img/watch.webp" },
+            { n: "Avoid\nThese Traps", c: "#dc2626", img: "img/avoid.webp" },
+            { n: "Build vs\nBuy vs Consult", c: "#dc2626", img: "img/buildbuy.webp" }
+          ]},
+        { n: "Your Data\n+ AI", c: "#0d9488", img: "img/dataai.webp", tag: "Make AI Know Your Business", desc: "Connect AI to YOUR data — documents, knowledge base, processes.",
+          ch: [
+            { n: "RAG", c: "#0d9488", img: "img/rag.webp" },
+            { n: "Vector\nSearch", c: "#0d9488", img: "img/vectorsearch.webp" },
+            { n: "Fine-tune\nvs Prompt", c: "#0d9488", img: "img/finetune.webp" }
+          ]},
+        { n: "Run It\nYourself", c: "#475569", img: "img/runyourself.webp", tag: "Own Your AI Stack", desc: "Open-source models, local deployment, full privacy.",
+          ch: [
+            { n: "Open Source\nModels", c: "#475569", img: "img/opensource.webp" },
+            { n: "Local AI", c: "#475569", img: "img/localai.webp" },
+            { n: "When\nSelf-Hosted", c: "#475569", img: "img/selfhosted.webp" }
+          ]},
+        { n: "AI in\nProduction", c: "#e11d48", img: "img/production.webp", tag: "Keep It Running", desc: "Monitoring, costs, security. The hard part after the demo.",
+          ch: [
+            { n: "Monitoring &\nObservability", c: "#e11d48", img: "img/monitoring.webp" },
+            { n: "Cost\nControl", c: "#e11d48", img: "img/costcontrol.webp" },
+            { n: "Security\nBasics", c: "#e11d48", img: "img/security.webp" }
+          ]}
+      ]}
+  ]
+};
+
+// Convert to d3 hierarchy
+function toH(d) { var o = { name: d.n, color: d.c, tag: d.tag, desc: d.desc, img: d.img }; if (d.ch) o.children = d.ch.map(toH); return o; }
+var W = window.innerWidth, H = window.innerHeight;
+var svg = d3.select('body').append('svg').attr('width', W).attr('height', H);
+var g = svg.append('g'), gL = g.append('g'), gN = g.append('g');
+
+var root = d3.hierarchy(toH(data));
+d3.tree().size([2 * Math.PI, Math.min(W, H) * 0.55])
+  .separation(function(a, b) {
+    var sib = a.parent === b.parent;
+    if (a.depth === 1) return sib ? 1.6 : 3.0;
+    if (a.depth === 2) return sib ? 2.5 : 4.0;
+    return sib ? 3.0 : 5.0;
+  })(root);
+root.each(function(d) { d.cx = d.y * Math.cos(d.x - Math.PI / 2); d.cy = d.y * Math.sin(d.x - Math.PI / 2); });
+
+// Links — simple, no animation on load
+gL.selectAll('path').data(root.links()).join('path').attr('class', 'link')
+  .attr('d', function(d) { return 'M' + d.source.cx + ',' + d.source.cy + 'Q' + (d.source.cx + (d.target.cx - d.source.cx) * 0.4) + ',' + (d.source.cy + (d.target.cy - d.source.cy) * 0.7) + ' ' + d.target.cx + ',' + d.target.cy; })
+  .attr('stroke', function(d) { return d.target.data.color; })
+  .attr('stroke-width', function(d) { return d.target.depth === 1 ? 2 : 1.2; })
+  .attr('stroke-opacity', 0.18);
+
+// Nodes — NO SVG filters, simple shapes
+var nodeG = gN.selectAll('g').data(root.descendants()).join('g')
+  .attr('class', 'node-g')
+  .attr('transform', function(d) { return 'translate(' + d.cx + ',' + d.cy + ')'; });
+
+// Root node
+nodeG.filter(function(d) { return d.depth === 0; }).each(function(d) {
+  var el = d3.select(this);
+  el.append('circle').attr('class', 'node-bg').attr('r', 22).attr('fill', '#fff').attr('stroke', '#e0e0e0').attr('stroke-width', 1.5);
+  el.append('circle').attr('r', 8).attr('fill', '#3a3a5e');
+  el.append('text').attr('text-anchor', 'middle').attr('dy', -32).attr('fill', '#1a1a2e').attr('font-size', '16px').attr('font-weight', '800').text('AI');
+});
+
+// Branch nodes (depth 1 OR depth 2 with children)
+function isBranch(d) { return d.depth === 1 || (d.depth === 2 && d.children); }
+function isLeaf(d) { return !isBranch(d) && d.depth > 0; }
+
+nodeG.filter(isBranch).each(function(d) {
+  var el = d3.select(this), c = d.data.color;
+  var sz = d.depth === 1 ? 42 : 34;
+  var imgSz = d.depth === 1 ? 56 : 44;
+  var imgOff = imgSz / 2;
+  var txtOff = d.depth === 1 ? 52 : 44;
+  var txtSz = d.depth === 1 ? '10px' : '9px';
+  el.append('rect').attr('class', 'node-bg').attr('x', -sz).attr('y', -sz).attr('width', sz*2).attr('height', sz*2).attr('rx', 20).attr('fill', '#fff').attr('stroke', c).attr('stroke-width', 1.2).attr('stroke-opacity', 0.25);
+  if (d.data.img) el.append('image').attr('href', d.data.img).attr('x', -imgOff).attr('y', -imgOff).attr('width', imgSz).attr('height', imgSz).attr('clip-path', 'inset(0 round '+(imgSz/2)+'px)').attr('preserveAspectRatio', 'xMidYMid slice');
+  d.data.name.split('\n').forEach(function(line, i) {
+    el.append('text').attr('text-anchor', 'middle').attr('dy', txtOff + i * 13).attr('fill', '#2a2a3e').attr('font-size', txtSz).attr('font-weight', '600').text(line);
+  });
+});
+
+// Leaf nodes (depth 2 without children, or depth 3)
+nodeG.filter(isLeaf).each(function(d) {
+  var el = d3.select(this), c = d.data.color, isR = d.x < Math.PI;
+  el.append('rect').attr('class', 'node-bg').attr('x', -22).attr('y', -22).attr('width', 44).attr('height', 44).attr('rx', 13).attr('fill', '#fff').attr('stroke', c).attr('stroke-width', 0.8).attr('stroke-opacity', 0.25);
+  if (d.data.img) el.append('image').attr('href', d.data.img).attr('x', -16).attr('y', -16).attr('width', 32).attr('height', 32).attr('clip-path', 'inset(0 round 8px)').attr('preserveAspectRatio', 'xMidYMid slice');
+  else el.append('circle').attr('r', 4).attr('fill', c).attr('opacity', 0.35);
+  d.data.name.split('\n').forEach(function(line, i) {
+    el.append('text').attr('text-anchor', 'middle').attr('dy', 32 + i * 11).attr('fill', '#5a5a6e').attr('font-size', '8.5px').attr('font-weight', '500').text(line);
+  });
+});
+
+// ── State ──
+var focus = root, animating = false;
+var book = document.getElementById('book'), bookC = document.getElementById('bookC');
+
+// ── Zoom ──
+var zm = d3.zoom().scaleExtent([0.3, 8]).on('zoom', function(e) {
+  g.attr('transform', e.transform);
+  if (bookNode) updateBookPos();
+  if (e.sourceEvent && !animating) {
+    var k = e.transform.k;
+    // Auto-detect focus from zoom level
+    if (focus.depth === 1 && k < 1.5) { focus = root; ui(); }
+    else if (focus === root && k >= 2.2) {
+      var cx = (W/2 - e.transform.x)/k, cy = (H/2 - e.transform.y)/k;
+      var best = null, bd = Infinity;
+      root.children.forEach(function(ch) { var d2 = (ch.cx-cx)*(ch.cx-cx)+(ch.cy-cy)*(ch.cy-cy); if (d2 < bd) { bd = d2; best = ch; } });
+      if (best && best !== focus) { focus = best; ui(); }
+    }
+  }
+});
+svg.call(zm).call(zm.transform, d3.zoomIdentity.translate(W/2, H/2));
+
+// ── Book card ──
+function showBook(d, sx, sy) {
+  var det = D[d.data.name]; if (!det) return;
+  var c = d.data.color, nm = d.data.name.replace(/\n/g, ' ');
+  var cat = d.depth === 1 ? (d.data.tag || 'AI Landscape') : (d.parent ? d.parent.data.name.replace(/\n/g, ' ') : '');
+  var right = sx < W * 0.55;
+  var st = det.st ? '<div class="book-stat">' + det.st.map(function(s) { return '<div class="book-stat-item"><div class="book-stat-value" style="color:'+c+'">'+s[0]+'</div><div class="book-stat-label">'+s[1]+'</div></div>'; }).join('') + '</div>' : '';
+
+  bookC.innerHTML = '<div class="book-tag" style="color:'+c+'">'+cat+'</div><div class="book-title">'+nm+'</div><div class="book-divider" style="background:'+c+'"></div>'+st+
+    '<div class="book-section"><div class="book-section-title">What is it</div><div class="book-section-text">'+det.what+'</div></div>'+
+    '<div class="book-section"><div class="book-section-title">What makes it different</div><div class="book-section-text">'+det.diff+'</div></div>'+
+    '<div class="book-section"><div class="book-section-title">Why your company should care</div><div class="book-section-text">'+det.biz+'</div></div>';
+
+  book.style.borderColor = c;
+  bookNode = d;
+  book.className = 'book-card right';
+  updateBookPos();
+  book.offsetHeight;
+  book.classList.add('show');
+}
+
+var bookNode = null;
+function updateBookPos() {
+  if (!bookNode) return;
+  var t = d3.zoomTransform(svg.node());
+  var px = t.applyX(bookNode.cx), py = t.applyY(bookNode.cy);
+  var k = t.k;
+  // Node size on screen
+  var hasCh = bookNode.children && bookNode.children.length > 0;
+  var nodeR = bookNode.depth === 1 ? 42 * k : (bookNode.depth === 2 && hasCh) ? 34 * k : 22 * k;
+  // Place right of node, touching it
+  var left = px + nodeR + 8;
+  var top = py - 20;
+  // If would go off-screen right, flip to left side
+  if (left + 380 > W - 10) {
+    left = px - nodeR - 8 - 380;
+    book.className = book.className.replace('right','left').indexOf('left') >= 0 ? book.className : book.className + ' left';
+  }
+  // Clamp vertically
+  top = Math.max(56, Math.min(top, H - 300));
+  book.style.left = left + 'px';
+  book.style.right = 'auto';
+  book.style.top = top + 'px';
+  book.style.bottom = 'auto';
+  book.style.maxHeight = (H - top - 24) + 'px';
+}
+function hideBook() { book.className = 'book-card hide'; bookNode = null; }
+document.getElementById('bookX').onclick = function(e) { e.stopPropagation(); hideBook(); };
+
+// ── Navigation ──
+function zoomTo(node, dur, cb) {
+  var s, tx, ty;
+  if (node === root) { s = 1; tx = W/2; ty = H/2; }
+  else if (node.depth === 1) { s = 2.8; tx = W/2 - node.cx*s; ty = H/2 - node.cy*s; }
+  else if (node.depth === 2 && node.children) { s = 4.0; tx = W/2 - node.cx*s; ty = H/2 - node.cy*s; }
+  else { s = 4.5; tx = W/2 - node.cx*s; ty = H/2 - node.cy*s; }
+  animating = true;
+  svg.transition().duration(dur).ease(d3.easeCubicInOut)
+    .call(zm.transform, d3.zoomIdentity.translate(tx, ty).scale(s))
+    .on('end', function() { animating = false; if (cb) cb(); });
+}
+
+function screenPos(d) {
+  var t = d3.zoomTransform(svg.node());
+  return [t.applyX(d.cx), t.applyY(d.cy)];
+}
+
+nodeG.on('click', function(ev, d) {
+  ev.stopPropagation();
+
+  // Toggle: if book is open for this node, close it
+  if (bookNode === d) { hideBook(); return; }
+  hideBook();
+
+  // Click root — show hero
+  if (d.depth === 0) { expandHero(); return; }
+
+  // Is this a "branch" node (has children)?
+  var hasCh = d.children && d.children.length > 0;
+
+  // Click leaf (any depth, no children) — center on it, open book
+  if (!hasCh) {
+    focus = d.parent; ui();
+    var s = d.depth >= 3 ? 5.5 : 2.8;
+    var tx = W * 0.35 - d.cx * s, ty = H / 2 - d.cy * s;
+    animating = true;
+    svg.transition().duration(500).ease(d3.easeCubicInOut)
+      .call(zm.transform, d3.zoomIdentity.translate(tx, ty).scale(s))
+      .on('end', function() {
+        animating = false;
+        var p = screenPos(d);
+        showBook(d, p[0], p[1]);
+      });
+    return;
+  }
+
+  // Click branch (has children) — zoom + open book card
+  if (hasCh) {
+    if (focus === d) {
+      var p = screenPos(d);
+      showBook(d, p[0], p[1]);
+    } else {
+      focus = d; ui();
+      zoomTo(d, 500, function() {
+        var p = screenPos(d);
+        showBook(d, p[0], p[1]);
+      });
+    }
+    return;
+  }
+});
+
+// Click background — zoom out one level
+svg.on('click', function() {
+  hideBook();
+  if (focus !== root) {
+    focus = focus.parent || root;
+    ui(); zoomTo(focus, 500);
+  }
+});
+
+document.getElementById('btnOut').onclick = function() { hideBook(); focus = root; ui(); zoomTo(root, 500); };
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (book.classList.contains('show')) hideBook();
+    else if (focus !== root) { focus = (focus.parent && focus.parent !== root) ? focus.parent : root; ui(); zoomTo(focus, 500); }
+  }
+});
+
+// ── UI updates (no transitions — instant) ──
+function ui() {
+  var isOv = focus === root;
+
+  // Determine if a node is "in scope" of the current focus
+  function inScope(d) {
+    if (isOv) return true;
+    if (d === root) return true;
+    if (d === focus) return true;
+    if (d.parent === focus) return true;
+    // Show the branch chain up to root
+    var n = focus; while (n) { if (d === n) return true; n = n.parent; }
+    return false;
+  }
+
+  // Opacity — instant, no transition
+  gL.selectAll('path').attr('stroke-opacity', function(d) {
+    if (isOv) return 0.18;
+    return (inScope(d.source) && inScope(d.target)) ? 0.35 : 0.03;
+  });
+  nodeG.attr('opacity', function(d) {
+    if (inScope(d)) return 1;
+    return d.depth === 0 ? 0.12 : d.depth === 1 ? 0.06 : 0.02;
+  });
+
+  // Panel
+  // Hero is manually controlled, not by focus state
+
+  // Breadcrumb
+  var bc = document.getElementById('bc'), path = [], n = focus;
+  while (n) { path.unshift(n); n = n.parent; }
+  if (isOv) { bc.innerHTML = ''; } else {
+  bc.innerHTML = path.map(function(p, i) {
+    var label = p === root ? 'Overview' : p.data.name.replace(/\n/g,' ');
+    return (i ? '<span class="sep">›</span>' : '') + '<span class="crumb'+(i===path.length-1?' active':'')+'" data-i="'+i+'">'+label+'</span>';
+  }).join('');
+  bc.querySelectorAll('.crumb').forEach(function(el, idx) {
+    el.onclick = function() {
+      hideBook();
+      var target = path[parseInt(el.dataset.i)];
+      if (target !== focus) { focus = target; ui(); zoomTo(focus, 500); }
+    };
+  });
+  }
+
+  // Zoom out button
+  var b = document.getElementById('btnOut');
+  b.style.opacity = isOv ? '0' : '1';
+  b.style.pointerEvents = isOv ? 'none' : 'auto';
+}
+
+ui();
+
+// Hero / mini-bar
+var heroEl = document.getElementById('hero'), miniEl = document.getElementById('miniBar');
+function collapseHero() { heroEl.classList.add('collapsed'); setTimeout(function() { miniEl.classList.add('show'); }, 400); }
+function expandHero() { miniEl.classList.remove('show'); setTimeout(function() { heroEl.classList.remove('collapsed'); }, 200); }
+document.getElementById('heroBtn').onclick = collapseHero;
+miniEl.onclick = expandHero;
+// Also collapse when clicking any node
+nodeG.on('click.hero', function() { if (!heroEl.classList.contains('collapsed')) collapseHero(); });
+
+window.onresize = function() { W = innerWidth; H = innerHeight; svg.attr('width', W).attr('height', H); if (focus === root) svg.call(zm.transform, d3.zoomIdentity.translate(W/2, H/2)); };
+</script>
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "198cb571fd6a418c8188e1cbd924d841"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
