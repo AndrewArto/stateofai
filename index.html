@@ -3,19 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>State of AI — 2026 Landscape</title>
-<meta name="description" content="An interactive map of the AI landscape in 2026 — who builds it, who uses it, and what it means for your company.">
-<meta property="og:title" content="The State of AI for Decision Makers">
-<meta property="og:description" content="An interactive map of the AI landscape in 2026. 6 categories, 32 topics, zero jargon.">
+<title>State of AI 2026 — Interactive AI Landscape Map for Decision Makers</title>
+<meta name="description" content="Interactive AI landscape map for CEOs and business leaders. Explore 9 categories and 45+ topics: foundation models, AI assistants, agents, creative AI, development tools, data strategy, self-hosting, production ops. Zero jargon.">
+<link rel="canonical" href="https://ai.tripleadigital.io/">
+<meta name="author" content="TripleA Digital">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="AI landscape 2026, state of AI, AI for business, AI strategy, foundation models, ChatGPT, Claude, Gemini, AI agents, RAG, vector search, AI assistants, creative AI, AI in production, open source AI, LLM comparison">
+<meta property="og:title" content="State of AI 2026 — Interactive Map for Decision Makers">
+<meta property="og:description" content="Interactive AI landscape map. 9 categories, 45+ topics. Foundation models, agents, creative AI, strategy — explained for business leaders, zero jargon.">
 <meta property="og:image" content="https://ai.tripleadigital.io/img/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://ai.tripleadigital.io">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="TripleA Digital">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The State of AI for Decision Makers">
-<meta name="twitter:description" content="An interactive map of the AI landscape in 2026. 6 categories, 32 topics, zero jargon.">
+<meta name="twitter:title" content="State of AI 2026 — Interactive Map for Decision Makers">
+<meta name="twitter:description" content="Interactive AI landscape map. 9 categories, 45+ topics — explained for business leaders, zero jargon.">
 <meta name="twitter:image" content="https://ai.tripleadigital.io/img/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "State of AI 2026",
+  "description": "Interactive AI landscape map for CEOs and business leaders. Explore foundation models, AI assistants, agents, creative AI, development tools, data strategy, and more.",
+  "url": "https://ai.tripleadigital.io",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "author": {
+    "@type": "Organization",
+    "name": "TripleA Digital",
+    "url": "https://tripleadigital.io"
+  },
+  "datePublished": "2026-03-11",
+  "image": "https://ai.tripleadigital.io/img/og.jpg",
+  "about": [
+    {"@type": "Thing", "name": "Artificial Intelligence"},
+    {"@type": "Thing", "name": "AI Strategy"},
+    {"@type": "Thing", "name": "Foundation Models"},
+    {"@type": "Thing", "name": "AI Agents"},
+    {"@type": "Thing", "name": "Creative AI"}
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -53,6 +83,19 @@
   .book-card.hide { opacity: 0; transform: scaleX(0); transition: transform 0.2s ease-in, opacity 0.15s ease-in; }
   .book-card.right { transform-origin: left center; border-radius: 4px 16px 16px 4px; border-left: 3px solid; border-right: none; }
   .book-card.left { transform-origin: right center; border-radius: 16px 4px 4px 16px; border-right: 3px solid; border-left: none; }
+
+  @media (max-width: 768px) {
+    .book-card { width: 100%; left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important; max-height: 55vh !important; border-radius: 20px 20px 0 0 !important; border-left: none !important; border-right: none !important; border-top: 3px solid; padding: 20px 20px 24px; transform: translateY(100%); transform-origin: bottom center; }
+    .book-card.show { transform: translateY(0); }
+    .book-card.hide { transform: translateY(100%); }
+    .book-card.right, .book-card.left { border-radius: 20px 20px 0 0 !important; border-left: none !important; border-right: none !important; transform-origin: bottom center; }
+    .book-title { font-size: 18px; }
+    .book-section-text { font-size: 13px; }
+    .book-stat-value { font-size: 16px; }
+    .hero-card { max-width: 90%; padding: 32px 24px; }
+    .hero-title { font-size: 22px; }
+    .topbar { padding: 10px 14px; }
+  }
 
   .book-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 18px; color: #a0a0a8; cursor: pointer; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
   .book-close:hover { background: rgba(0,0,0,0.04); color: #5a5a6e; }
@@ -255,8 +298,8 @@ var root = d3.hierarchy(toH(data));
 d3.tree().size([2 * Math.PI, Math.min(W, H) * 0.55])
   .separation(function(a, b) {
     var sib = a.parent === b.parent;
-    if (a.depth === 1) return sib ? 1.6 : 3.0;
-    if (a.depth === 2) return sib ? 3.5 : 5.0;
+    if (a.depth === 1) return sib ? 2.2 : 3.8;
+    if (a.depth === 2) return sib ? 4.8 : 6.0;
     return sib ? 2.8 : 4.5;
   })(root);
 root.each(function(d) { d.cx = d.y * Math.cos(d.x - Math.PI / 2); d.cy = d.y * Math.sin(d.x - Math.PI / 2); });
@@ -347,7 +390,22 @@ var zm = d3.zoom().scaleExtent([0.3, 8]).on('zoom', function(e) {
     }
   }
 });
-svg.call(zm).call(zm.transform, d3.zoomIdentity.translate(W/2, H/2));
+var isMobile = W < 768;
+// Auto-fit: find tree bounds and scale to fit
+var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+root.descendants().forEach(function(d) {
+  var pad = d.depth === 1 ? 60 : 40;
+  if (d.cx - pad < minX) minX = d.cx - pad;
+  if (d.cx + pad > maxX) maxX = d.cx + pad;
+  if (d.cy - pad < minY) minY = d.cy - pad;
+  if (d.cy + pad > maxY) maxY = d.cy + pad;
+});
+var tw = maxX - minX, th = maxY - minY;
+var fitScale = Math.min(W / tw, H / th) * 0.92;
+var fitTx = W / 2 - (minX + tw / 2) * fitScale;
+var fitTy = H / 2 - (minY + th / 2) * fitScale;
+var initTransform = isMobile ? d3.zoomIdentity.translate(fitTx, fitTy).scale(fitScale) : d3.zoomIdentity.translate(W/2, H/2);
+svg.call(zm).call(zm.transform, initTransform);
 
 // ── Cross-reference map ──
 var nodeMap = {};
@@ -356,7 +414,10 @@ root.descendants().forEach(function(nd) {
   var name = nd.data.name.replace(/\n/g, ' ');
   nodeMap[name] = nd;
 });
-// Sort by length desc so longer names match first (e.g. "Claude Code" before "Claude")
+// Aliases: common short names → full node names
+var aliases = { 'DALL-E': 'DALL-E 3', 'GPT': 'ChatGPT', 'Copilot': 'Microsoft Copilot', 'GitHub Copilot': 'GitHub Copilot', 'LangChain': 'Agent Frameworks', 'CrewAI': 'Agent Frameworks', 'AutoGen': 'Agent Frameworks', 'OpenClaw': 'Agent Frameworks', 'Ollama': 'Local AI', 'LM Studio': 'Local AI', 'Glean': 'Enterprise Search', 'Notion AI': 'Enterprise Search', 'n8n': 'Workflow Automation', 'Make': 'Workflow Automation', 'Zapier': 'Workflow Automation', 'HeyGen': 'Voice Cloning & Dubbing', 'Synthesia': 'Voice Cloning & Dubbing', 'Pinecone': 'Vector Search', 'LlamaIndex': 'RAG', 'LangSmith': 'Monitoring & Observability', 'Langfuse': 'Monitoring & Observability', 'Helicone': 'Monitoring & Observability' };
+Object.keys(aliases).forEach(function(a) { var target = nodeMap[aliases[a]]; if (target) nodeMap[a] = target; });
+// Sort by length desc so longer names match first
 var nodeNames = Object.keys(nodeMap).sort(function(a, b) { return b.length - a.length; });
 var linkRx = new RegExp('\\b(' + nodeNames.map(function(n) { return n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'g');
 
@@ -380,7 +441,8 @@ document.addEventListener('click', function(e) {
     } else {
       focus = nd.parent; ui();
       var s = nd.depth >= 3 ? 5.5 : 2.8;
-      var tx = W * 0.35 - nd.cx * s, ty = H / 2 - nd.cy * s;
+      var tx = isMobile ? (W / 2 - nd.cx * s) : (W * 0.35 - nd.cx * s);
+      var ty = (isMobile ? H * 0.3 : H / 2) - nd.cy * s;
       animating = true;
       svg.transition().duration(500).ease(d3.easeCubicInOut)
         .call(zm.transform, d3.zoomIdentity.translate(tx, ty).scale(s))
@@ -413,21 +475,18 @@ function showBook(d, sx, sy) {
 var bookNode = null;
 function updateBookPos() {
   if (!bookNode) return;
+  if (isMobile) return; // Mobile: CSS handles position (bottom sheet)
   var t = d3.zoomTransform(svg.node());
   var px = t.applyX(bookNode.cx), py = t.applyY(bookNode.cy);
   var k = t.k;
-  // Node size on screen
   var hasCh = bookNode.children && bookNode.children.length > 0;
   var nodeR = bookNode.depth === 1 ? 42 * k : (bookNode.depth === 2 && hasCh) ? 34 * k : 22 * k;
-  // Place right of node, touching it
   var left = px + nodeR + 8;
   var top = py - 20;
-  // If would go off-screen right, flip to left side
   if (left + 380 > W - 10) {
     left = px - nodeR - 8 - 380;
     book.className = book.className.replace('right','left').indexOf('left') >= 0 ? book.className : book.className + ' left';
   }
-  // Clamp vertically
   top = Math.max(56, Math.min(top, H - 300));
   book.style.left = left + 'px';
   book.style.right = 'auto';
@@ -441,10 +500,10 @@ document.getElementById('bookX').onclick = function(e) { e.stopPropagation(); hi
 // ── Navigation ──
 function zoomTo(node, dur, cb) {
   var s, tx, ty;
-  if (node === root) { s = 1; tx = W/2; ty = H/2; }
-  else if (node.depth === 1) { s = 2.8; tx = W/2 - node.cx*s; ty = H/2 - node.cy*s; }
-  else if (node.depth === 2 && node.children) { s = 4.0; tx = W/2 - node.cx*s; ty = H/2 - node.cy*s; }
-  else { s = 4.5; tx = W/2 - node.cx*s; ty = H/2 - node.cy*s; }
+  if (node === root) { s = isMobile ? fitScale : 1; tx = isMobile ? fitTx : W/2; ty = isMobile ? fitTy : H/2; }
+  else if (node.depth === 1) { s = isMobile ? 3.5 : 2.8; tx = W/2 - node.cx*s; ty = (isMobile ? H*0.35 : H/2) - node.cy*s; }
+  else if (node.depth === 2 && node.children) { s = isMobile ? 5.0 : 4.0; tx = W/2 - node.cx*s; ty = (isMobile ? H*0.35 : H/2) - node.cy*s; }
+  else { s = isMobile ? 5.5 : 4.5; tx = W/2 - node.cx*s; ty = (isMobile ? H*0.35 : H/2) - node.cy*s; }
   animating = true;
   svg.transition().duration(dur).ease(d3.easeCubicInOut)
     .call(zm.transform, d3.zoomIdentity.translate(tx, ty).scale(s))
@@ -473,7 +532,8 @@ nodeG.on('click', function(ev, d) {
   if (!hasCh) {
     focus = d.parent; ui();
     var s = d.depth >= 3 ? 5.5 : 2.8;
-    var tx = W * 0.35 - d.cx * s, ty = H / 2 - d.cy * s;
+    var tx = isMobile ? (W / 2 - d.cx * s) : (W * 0.35 - d.cx * s);
+    var ty = (isMobile ? H * 0.3 : H / 2) - d.cy * s;
     animating = true;
     svg.transition().duration(500).ease(d3.easeCubicInOut)
       .call(zm.transform, d3.zoomIdentity.translate(tx, ty).scale(s))
@@ -535,12 +595,15 @@ function ui() {
 
   // Opacity — instant, no transition
   gL.selectAll('path').attr('stroke-opacity', function(d) {
+    if (isMobile && isOv) return d.target.depth <= 1 ? 0.25 : 0;
     if (isOv) return 0.18;
+    if (isMobile && !inScope(d.source) && !inScope(d.target)) return 0;
     return (inScope(d.source) && inScope(d.target)) ? 0.35 : 0.03;
   });
   nodeG.attr('opacity', function(d) {
+    if (isMobile && isOv && d.depth >= 2) return 0;
     if (inScope(d)) return 1;
-    return d.depth === 0 ? 0.25 : d.depth === 1 ? 0.18 : 0.08;
+    return isMobile ? (d.depth <= 1 ? 0.12 : 0) : (d.depth === 0 ? 0.25 : d.depth === 1 ? 0.18 : 0.08);
   });
 
   // Panel
@@ -582,6 +645,41 @@ nodeG.on('click.hero', function() { if (!heroEl.classList.contains('collapsed'))
 
 window.onresize = function() { W = innerWidth; H = innerHeight; svg.attr('width', W).attr('height', H); if (focus === root) svg.call(zm.transform, d3.zoomIdentity.translate(W/2, H/2)); };
 </script>
+<article id="seo-content" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+<h1>State of AI 2026 — Interactive AI Landscape for Decision Makers</h1>
+<p>An interactive map of the AI landscape in 2026. 9 categories, 45+ topics. Who builds AI, who uses it, and what it means for your company — explained in plain language for CEOs and business leaders.</p>
+
+<h2>Foundation Models — Who Builds the Brains</h2>
+<p>A handful of companies build the core AI engines powering everything else: OpenAI (GPT-4o, o1), Anthropic (Claude), Google DeepMind (Gemini), Meta AI (Llama), Mistral, xAI (Grok), and DeepSeek.</p>
+
+<h2>AI Assistants — Your New Knowledge Workers</h2>
+<p>ChatGPT, Claude, Gemini, Perplexity, Microsoft Copilot, and Enterprise Search tools like Glean. These are the AI tools your employees use daily.</p>
+
+<h2>AI for Development — Code Generation Tools</h2>
+<p>GitHub Copilot, Cursor, Claude Code, Codex CLI, Windsurf, and Devin. AI is transforming how software is built — 10x productivity gains for developers.</p>
+
+<h2>AI Agents — The Next Wave</h2>
+<p>AI that takes actions, not just answers. What agents are, business use cases, MCP Protocol, computer use, agent frameworks (OpenClaw, LangChain, CrewAI, AutoGen), workflow automation (n8n, Make, Zapier), and risks.</p>
+
+<h2>Creative AI — Beyond Text</h2>
+<p>Midjourney, DALL-E 3, Sora (video), ElevenLabs (voice), Suno (music), and voice cloning with dubbing. Every creative medium, transformed by AI.</p>
+
+<h2>AI in Your Company</h2>
+
+<h3>Your AI Strategy</h3>
+<p>What to deploy now, what to pilot this quarter, what to watch and learn, traps to avoid, and the build vs buy vs consult decision framework.</p>
+
+<h3>Your Data + AI</h3>
+<p>RAG (Retrieval-Augmented Generation), vector search, and when to fine-tune vs prompt. Connect AI to YOUR data for competitive advantage.</p>
+
+<h3>Run It Yourself</h3>
+<p>Open source models (Llama, Qwen, Mistral), local AI (Ollama, LM Studio), and when self-hosted makes sense. Full privacy, no API costs.</p>
+
+<h3>AI in Production</h3>
+<p>Monitoring and observability (LangSmith, Langfuse), cost control (model routing, caching), and security basics (prompt injection, data protection).</p>
+
+<p>Created by <a href="https://tripleadigital.io">TripleA Digital</a> — AI consulting for business leaders.</p>
+</article>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "198cb571fd6a418c8188e1cbd924d841"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
