@@ -481,7 +481,7 @@ function ui() {
   });
   nodeG.attr('opacity', function(d) {
     if (inScope(d)) return 1;
-    return d.depth === 0 ? 0.12 : d.depth === 1 ? 0.06 : 0.02;
+    return d.depth === 0 ? 0.25 : d.depth === 1 ? 0.18 : 0.08;
   });
 
   // Panel
